@@ -1,0 +1,1 @@
+k create secret tls localtls --key sslip.io+6-key.pem --cert sslip.io+6.pem

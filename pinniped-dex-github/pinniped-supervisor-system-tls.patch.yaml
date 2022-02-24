@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pinniped-supervisor
+  namespace: pinniped-supervisor
+spec:
+  template:
+    spec:
+      containers:
+      - name: pinniped-supervisor
+        volumeMounts:
+        - mountPath: /etc/pki/tls/certs/self.pem
+          subPath: tls.crt
+          name: tls
+          readOnly: true
+      volumes:
+      - name: tls
+        secret:
+          defaultMode: 400
+          secretName: localtls

@@ -1,0 +1,35 @@
+#@data/values-schema
+---
+pinniped_host: pinniped-supervisor-172-0-0-1.sslip.io  #! no trailing slash
+dex_host: dex-172-0-0-1.sslip.io  #! no trailing slash
+
+#! Go to your Github account settings and create an OAuth app
+#! https://github.com/settings/developers
+github_client_id: 0000000000ffffffffff
+github_client_secret: 0000000000ffffffffff0000000000ffffffffff
+
+github_orgs:
+- myorg
+github_loadAllGroups: false
+
+#! Set your own values for pinniped to talk to Dex
+dex_client_id: pinniped
+dex_client_secret: pinniped-secret-abcdef-12345-abcdef-12345
+
+#! Configure the concierge with a unique ID
+cluster_audience: my-unique-cluster-identifier-00000fffff
+
+#@schema/nullable
+dex_tls:
+  crt: ""
+  key: ""
+#@schema/nullable
+pinniped_supervisor_tls:
+  crt: ""
+  key: ""
+
+cert_manager:
+  tls_acme: false
+  cluster_issuer: ""
+
+ingress_class: ""

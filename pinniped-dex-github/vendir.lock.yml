@@ -1,0 +1,15 @@
+apiVersion: vendir.k14s.io/v1alpha1
+directories:
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #2337 from iam-veeramalla/printversion...'
+      sha: e00e75b7731aeb33928463ebe1e730b507afbb0e
+      tags:
+      - v2.30.0-107-ge00e75b7
+    path: dex
+  - http: {}
+    path: pinniped-supervisor
+  - http: {}
+    path: pinniped-concierge
+  path: infra
+kind: LockConfig

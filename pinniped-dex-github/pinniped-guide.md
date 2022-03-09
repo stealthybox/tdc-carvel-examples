@@ -44,6 +44,20 @@ Now, we'll need to either create a personal or organization level Oauth app.
 Personal apps may need to be granted organizational access to lookup whether a
 GitHub user is within that organization and which groups the user is a member of. 
 
+### callback URL
+In order to create an Oauth app, you'll need the callback URL for the Dex ingress we
+intend to deploy. If we plan deploy dex to `dex.example.com`, set the callback url to
+`https://dex.example.com/callback`.
+
+If you are using your laptop's private network IP for this,
+you can print the callback URL by running `make hosts`.
+
+Note that the Dex IP address cannot be `localhost`, `127.0.0.1/8`, or `::1` because the
+Pinniped Supervisor Pod will fail to health-check Dex.
+(The Deployments would need to be merged or co-scheduled to support this edge-case.)
+Your laptop's IP address from your router or your VM's private or public IP is sufficient
+for this use-case.
+
 ### personal apps
 You can create a personal app from your github settings:
 https://github.com/settings/developers

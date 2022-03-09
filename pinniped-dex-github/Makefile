@@ -43,6 +43,9 @@ hosts:
 	@echo "  $(DEX_HOST)"
 	@echo pinniped_host:
 	@echo "  $(PINNIPED_HOST)"
+	@echo
+	@echo GitHub App Callback URL:
+	@echo "  https://$(DEX_HOST)/callback"
 
 # pinniped-dex-github
 # these targets deploy the dex, the pinniped supervisor + concierge, and configs

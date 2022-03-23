@@ -26,7 +26,7 @@ This guide is of intermediate difficulty since it involves:
 - [kind](https://kind.sigs.k8s.io/docs/user/quick-start/#installation)
 - [pinniped](https://github.com/vmware-tanzu/homebrew-pinniped#how-do-i-install-this-formula)
 - [ytt + kapp](https://github.com/vmware-tanzu/homebrew-carvel#homebrew-tap)
-- [mkcert](https://github.com/FiloSottile/mkcert#installation) (if demo'ing on your laptop or private network)
+- [mkcert](https://github.com/FiloSottile/mkcert#installation) (if demo'ing on your laptop and/or with private TLS)
 
 
 ## Clone the Repo
@@ -74,7 +74,7 @@ Now navigate to an organization's third-party access settings, and allow your ne
 https://github.com/organizations/${my_organization}/settings/oauth_application_policy
 ```
 
-Personal Oauth apps can have access to multiple organization's member-lists and teams.
+Personal Oauth apps have a benefit. They can request access to multiple organization's member-lists and teams.
 Since they are owned by a particular GitHub user, you may want to create
 a [machine user](https://docs.github.com/en/developers/overview/managing-deploy-keys#machine-users)
 to manage the Oauth app independent of any single team member.
@@ -87,15 +87,44 @@ https://github.com/organizations/${my_organization}/settings/applications
 Generate a new set of Client Credentials and store them in a safe place such as a
 password manager.
 
-This Oauth app will automatically have access to the organization's member-list,
-and teams for just this single organization. It is not owned by a particular
-GitHub user.
+Organization Oauth apps will automatically have access to the member-list and teams,
+constrained to just this single organization. It is not owned by a particular GitHub user.
+
+### client secret
+Once your Oauth App is created, generate a client secret.
+Save a file called `config/values.yaml` containing the client secrets.
+
+
 
 
 ## Create the Supervisor Kubernetes Cluster
+To demo this on your laptop, start a local KinD cluster called `pinniped-1`:
 ```shell
-# kind create
-# install contour + configure for kind
+cat <<EOF | kind create cluster --name pinniped-1 --config=-
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+  kubeadmConfigPatches:
+  - |
+    kind: InitConfiguration
+    nodeRegistration:
+      kubeletExtraArgs:
+        node-labels: "ingress-ready=true"
+  extraPortMappings:
+  - containerPort: 80
+    hostPort: 80
+    protocol: TCP
+  - containerPort: 443
+    hostPort: 443
+    protocol: TCP
+EOF
+```
+
+Install Contour and patch it for KinD, so that we can route our Ingress records.
+```shell
+kubectl apply -f https://projectcontour.io/quickstart/contour.yaml
+kubectl patch daemonsets -n projectcontour envoy -p '{"spec":{"template":{"spec":{"nodeSelector":{"ingress-ready":"true"},"tolerations":[{"key":"node-role.kubernetes.io/master","operator":"Equal","effect":"NoSchedule"}]}}}}'
 ```
 
 
@@ -155,7 +184,6 @@ describe which Ingress records need DNS and TLS
 
 
 ## Create a Second Cluster
-TODO: document/add `cluster_audience` to the Makefile
 
 ```shell
 # kind create
@@ -163,8 +191,21 @@ TODO: document/add `cluster_audience` to the Makefile
 ```
 
 ### Deploy the Pinniped Concierge
-Our first cluster is already running Dex (to talk to GitHub),
-the Pinniped Supervisor, and 
+Our first cluster is already running:
+- Dex (to talk to GitHub)
+- the Pinniped Supervisor
+- the Pinniped Concierge (so that we can login to Kubernetes)
+
+For out second cluster, we just need to install the Pinniped Concierge and
+point it to the Pinniped Supervisor in the first cluster.
+
+Each cluster should have a unique cluster audience
+
+TODO: document/add `cluster_audience` to the Makefile
+
+```shell
+
+```
 
 ## Login to the Second Cluster
 
